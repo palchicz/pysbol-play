@@ -30,7 +30,7 @@
 from sbol import *
 
 # Set your Homespace. All new SBOL objects will be created in this namespace
-my_namespace = '<ENTER NAMESPACE HERE>'  # Ex: http://my_namespace.org
+my_namespace = 'http://sys-bio.org'  # Ex: http://my_namespace.org
 setHomespace(my_namespace)
 
 # Start a new SBOL Document to hold the device
@@ -40,6 +40,7 @@ print(my_device)
 
 # Load some genetic parts taken from the Cello paper
 cello_parts = Document('cello_parts.xml')
+cello_parts.read('cello_parts.xml')
 
 # Inspect the Document's contents
 len(cello_parts)
@@ -47,26 +48,25 @@ print(cello_parts)
 
 # Read in the XML and explore its contents. Notice it is composed of
 # componentDefinitions and sequences
-cello_parts.read('cello_parts.xml')
 for obj in cello_parts:
     print(obj)
 
 # Import these objects into your Document
-cello_parts.copy('https://synbiohub.programmingbiology.org/public/Cello_Parts', doc)
+cello_parts.copy('http://examples.org', doc)
 
 # Notice the objects have been imported into your Homespace
 for obj in doc:
 	print(obj)
 
-# Retrieve an object from the Document using its uniform resource identifier (URI)
-promoter_collection = doc.getCollection(my_namespace + '/' + 'promoters')
+# # Retrieve an object from the Document using its uniform resource identifier (URI)
+promoter_collection = doc.getCollection(my_namespace + '/Collection/promoters')
 
 # A Collection contains a list of URI references to objects, not the object themselves
 for p in promoter_collection.members:
 	print(p)
 
 # Retrieve a component, using its full URI
-promoter = doc.getComponentDefinition('http://my_namespace.org/ComponentDefinition/pPhlF/1')
+promoter = doc.getComponentDefinition(my_namespace + '/ComponentDefinition/pPhlF/1')
 
 # Retrieve the same component, using its displayId
 promoter = doc.componentDefinitions['pPhlF']
@@ -101,7 +101,7 @@ medium_comp_uri = records[0].identity
 part_shop.pull(medium_comp_uri, doc)
 
 
-# In[ ]:
+# # In[ ]:
 
 
 # Explore the new parts
@@ -126,10 +126,9 @@ medium_strength_promoter = doc.componentDefinitions['BBa_J23106']
 
 
 # Get parts for a new circuit
-promoter = doc.componentDefinitions[ <ENTER DISPLAYID HERE> ]
-cds = doc.componentDefinitions[ <ENTER DISPLAYID HERE> ]
-rbs = doc.componentDefinitions[ <ENTER DISPLAYID HERE> ]
-terminator = doc.componentDefinitions[ <ENTER DISPLAYID HERE> ]
+rbs = doc.componentDefinitions[ 'LuxR' ]
+cds = doc.componentDefinitions[ 'Q2' ]
+terminator = doc.componentDefinitions[ 'ECK120010818' ]
 
 
 # In[ ]:
@@ -214,33 +213,31 @@ print(doc.validate())
 # In[ ]:
 
 
-import getpass
-user_name = '<ENTER USERNAME HERE>'
-email = '<ENTER EMAIL HERE>'
-password = getpass.getpass()
-
+user_name = <USERNAME>
 
 # In[ ]:
 
 
-part_shop.login(user_name, password)
+part_shop.login(user_name)
 
 
 # In[ ]:
 
 # Upon submission, the Document will be converted to a Collection with the following properties
-doc.displayId = 'cassette_collection_1'
-doc.name = 'cassette collection 1'
-doc.description = 'a description of the cassette collection'
+# The new Collection will have a URI that conforms to the following pattern:
+# https://synbiohub.org/user/<USERNAME>/<DOC.DISPLAYID>/<DOC.DISPLAYID>_collection
+doc.displayId = 'my_device'
+doc.name = 'my device'
+doc.description = 'a description of the cassette'
 
 
 # In[ ]:
 
+part_shop.submit(doc)
 
-part_shop.submit(cassette_doc)
+# Attach raw experimental data to the Test object here. Note the pattern
+test_uri = 'https://synbiohub.org/user/' + user_name + '/' + doc.displayId + '/Test_experiment1/1'
+part_shop.attachFile(test_uri, <ENTER PATH TO ATTACHED FILE HERE>)
 
-# Attach raw experimental data here
-part_shop.attachFile('http://synbiohub.org/user/' + user_name + '/' + experiment1.displayId, <ENTER ATTACHMENT FILE PATH HERE>)
-
-# Attach processed experimental data here
+#Attach processed experimental data here
 part_shop.attachFile(<ENTER THE URI OF THE ANALYSIS OBJECT HERE>, <ENTER ATTACHMENT FILE PATH HERE>)
